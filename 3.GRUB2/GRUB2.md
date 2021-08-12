@@ -56,5 +56,22 @@ grub > root(hdo,gpt1)
 
 即可。
 
+## GRUB2原理
 
+如果细心观察过就会发现，在安装双系统的过程中，如果是先安装的Windows，再安装的Linux的话，在启动系统时可以选择是启动Linux还是启动Windows，但是如果安装的顺序相反则不会有这种现象。根据之前的资料我们知道系统启动需要读取MBR上面的信息，Linux通过GRUB2来引导。那么是不是和这两个东西有着什么关系呢？
 
+答案是是的。
+
+首先介绍一下什么叫**Boot Loader**。当系统启动开机自检完以后BIOS会把启动过程的控制权交给引导程序，而这个引导程序就是**Boot Loader**。不同的操作系统都有对应的**Boot Loader**，Windows的叫``ntldr``，Linux就是``GRUB2``。
+
+那么这些**Boot Loader**都安装在什么地方呢，其实就是硬盘的MBR上。通过外设的**13号中断**，BIOS可以知道外设MBR的地址。对于windows，它要求一个主分区设置为活动分区，并把windows操作系统安装在该主分区。这个时候，windows的引导程序ntldr就会寻找到活动分区，并加载系统文件到内存。如果你的一块硬盘里有两个操作系统，一个是linux，一个是windows.那么如果ntldr安装在了MBR上，除非使用一些特定的工具进行额外配置，否则它是只能够启动windows的，ntldr不会把控制权交到别个系统的**Boot Loader**手上。而如果MBR上安装的是grub2，那么它就默认提供3大功能：
+
+1. 提供一块硬盘上所有安装的系统的选择菜单；
+2. 载入操作linux系统内核，移交控制权给内核；
+3. 将控制权移交给其他系统的**Boot Loader**
+
+也就是说在优麒麟系统启动时的选择菜单如果选择了Windows，那么GRUB2就会把控制权移交给Windows的**Boot Loader**，ntldr。
+
+**Boot Loader**最主要的作用就是识别自己的操作系统文件，并将它载入到内存。那么新的问题出现了：一块硬盘只有一个MBR，在我们装上了grub2之后，就不能再装windows的ntldr了，如果没有ntldr就载入不了windows的系统文件，启动不了系统。但现在我们很多人的电脑上都有双系统，那是怎么做到的呢？
+
+回到我们之前最开始提出的问题， 还是和安装系统的顺序有关系。每个分区都有一个引导扇区（boot sector）。那么当你把系统安装在某个分区时，它同时也会在该分区的boot sector上安装它自己的boot loader。因为一个分区只能装一个系统，这样该分区上的系统就可以被该分区的boot sector上的**Boot Loader**引导了，不会有其他系统的loader来抢占这个位置。但Windows除了在自己所在分区的boot sector上安装自己的**Boot Loader**，它还会在硬盘的MBR上也装上一份。所以，如果你先安装了linux，再装windows，那么最后MBR上就是ntldr，它是不会将控制权转交给别个系统的loader的，所以你也就启动不了linux。这也就解释了为什么我们的双系统安装要先安装Windows，再安装优麒麟或者是其他Linux发行版系统。
