@@ -107,3 +107,40 @@ clean:
 
 在终端输入``insmod | grep testModule``查看我们添加进的模块，``insmod``命令列出系统中的所有模块， ``grep testModule``列出名字为``testModule``的模块。可以看到内核成功安装。
 
+## 编译并安装内核
+
+正如上面所说，内核的源代码可以从Linux Archive网站上下载。
+
+### 配置内核
+
+在下载好的内核源码的目录中打开终端，输入``make clean``和``make mrproper``来清除缓存。
+
+![image-20210813003031814](Linux%E5%86%85%E6%A0%B8%E5%BC%80%E5%8F%91.assets/image-20210813003031814-16287858337501.png)
+
+然后执行``make menuconfig``来进行内核的配置。内核的配置方式有很多种，``make config``，``make xconfig``等等。他们的区别只在于配置的形式不同，有的可能是纯文本界面，有的是菜单配置。
+
+输入``make menuconfig``之后终端会变成一块蓝色的屏幕
+
+![aHR0cDovL2RvY2ltZy5uY21lbS5jb20vNDAwLzAxNjNlMDg3LmpwZw](C:/Users/%E9%BB%84%E5%B0%91%E9%A3%9E/Downloads/aHR0cDovL2RvY2ltZy5uY21lbS5jb20vNDAwLzAxNjNlMDg3LmpwZw.png)
+
+类似这样。在这里可以对内核进行一些默认的配置，例如
+* ``processor type and features``可以针对处理器类型和特性进行配置。
+* ``loadable model support``可以配置是否支持可加载模块，最好把这个选项勾上，否则一些只能动态加载的模块将无法使用。
+* ``plug and play support``可以配置即插即用设备支持，最好也是选上。
+* ``Networking support``顾名思义对网络的支持，最好也是选上。
+
+配置好内核了之后选择下面的exit之后选择yes保存内核配置即可。
+
+![image-20210813004514243](Linux%E5%86%85%E6%A0%B8%E5%BC%80%E5%8F%91.assets/image-20210813004514243-16287867155162.png)
+
+### 编译并安装内核
+
+在刚才的目录下面输入``make -j8``来进行内核编译。参数``j``后面的数字代表使用多少个线程去编译，一般来说编译的线程数越多编译的速度越快，可以参考自己计算机最高可支持多少线程。
+
+编译完成之后输入``make modules_install``安装内核模块，最后输入``make install``安装内核。
+
+重新启动电脑，在GRUB2启动项的第二栏**高级选项**处可以看到安装好的内核，选择安装好的内核进入系统，输入``uname -a``查看系统版本。
+
+![image-20210813004831498](Linux%E5%86%85%E6%A0%B8%E5%BC%80%E5%8F%91.assets/image-20210813004831498-16287869123943.png)
+
+与编译安装的内核版本一致，说明内核安装成功了。 
